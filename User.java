@@ -1,3 +1,4 @@
+
 import java.util.*;
 
 /**
@@ -11,6 +12,7 @@ public class User extends Subject implements Observer, systemEntry {
     private final LinkedList<String> newsFeed = new LinkedList<>();
     private final LinkedList<String> myTweets = new LinkedList<>();
 
+    public  final long userCreationTime;
     /**
      * Constructs a new User with the given name.
      *
@@ -21,6 +23,8 @@ public class User extends Subject implements Observer, systemEntry {
         followers = new HashSet<>();
         following = new HashSet<>();
         userGroupList = new HashSet<>();
+        userCreationTime = System.currentTimeMillis();
+
     }
 
     /**
@@ -94,6 +98,7 @@ public class User extends Subject implements Observer, systemEntry {
         myTweets.add(tweet);
         newsFeed.add("-" + this.unique_ID + " : " + tweet);
         notifyObservers(tweet);
+    
     }
 
     /**
@@ -129,6 +134,12 @@ public class User extends Subject implements Observer, systemEntry {
         return unique_ID;
     }
 
+    public long getUserCreationTime()
+    {
+        return userCreationTime;
+    }
+
+
     /**
      * Updates this user's news feed with a new tweet.
      *
@@ -142,4 +153,6 @@ public class User extends Subject implements Observer, systemEntry {
             this.newsFeed.add("-" + user.getUnique_ID() + " : " + tweet);
         }
     }
+
+
 }

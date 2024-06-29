@@ -34,10 +34,20 @@ public class adminControlPanel extends JFrame
     private JButton totalPositiveCountButton;
     private JButton totalGroupCountButton;
 
+
+    private JButton unique_IDVerificationButton;
+    private JButton groupUnique_IDVerificationButton;
+    private JButton lastUpdatedUserButton;
+    
+
     private JScrollPane treeViewPane;
     private JTextField addUserField;
     private JTextField addGroupField;
     private JTree treeView;
+
+    public String lastCreatedUser;
+    private String lastUpdatedUser;
+    public long lastCreatedUserTime;
 
     /**
      * Private constructor for the Singleton pattern.
@@ -89,6 +99,10 @@ public class adminControlPanel extends JFrame
         totalPositiveCountButton = new JButton();
         totalGroupCountButton = new JButton();
 
+        unique_IDVerificationButton = new JButton();
+        groupUnique_IDVerificationButton = new JButton();
+        lastUpdatedUserButton = new JButton();
+
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         treeViewPane.setViewportView(treeView);
 
@@ -116,7 +130,7 @@ public class adminControlPanel extends JFrame
         {
             DefaultMutableTreeNode selectedUser = (DefaultMutableTreeNode) treeView.getSelectionPath().getLastPathComponent();
             UserView userView = UserView.getUserView(users.get(selectedUser.toString()));
-            java.awt.EventQueue.invokeLater(() -> userView.setVisible(true));
+            EventQueue.invokeLater(() -> userView.setVisible(true));
         });
 
         // Configure total message count button
@@ -149,6 +163,44 @@ public class adminControlPanel extends JFrame
             JOptionPane.showMessageDialog(popUpDialogBox, "Total Number of Groups: " + user_groups.size());
         });
 
+        //Configure Unique ID verification button
+        unique_IDVerificationButton.setText("Verify User IDs");
+        unique_IDVerificationButton.addActionListener(e -> 
+        {
+            if(verifyUnique_IDs())
+            {
+                JOptionPane.showMessageDialog(popUpDialogBox, "All Users have a valid ID.");
+            }
+            else
+            {
+                JOptionPane.showMessageDialog(popUpDialogBox, "Error: User IDs are invalid.");
+            }
+        });
+
+        //Configure Group Unique ID Verification button
+        groupUnique_IDVerificationButton.setText("Verify Group IDs");
+        groupUnique_IDVerificationButton.addActionListener(e -> 
+        {
+            if(verifyGroupUnique_IDs())
+            {
+                JOptionPane.showMessageDialog(popUpDialogBox, "Error: Group IDs are invalid.");
+            }
+            else
+            {
+                JOptionPane.showMessageDialog(popUpDialogBox, "All Groups have a valid ID.");
+            }
+        });
+
+        
+        //Configure Last Updated User button
+        lastUpdatedUserButton.setText("Last Updated User");
+        lastUpdatedUserButton.addActionListener(e ->
+        {
+
+            JOptionPane.showMessageDialog(popUpDialogBox, "Last Updated User: " + lastUpdatedUser);
+        });
+
+
         // Configure layout using GroupLayout
         configureLayout();
         pack();
@@ -166,6 +218,7 @@ public class adminControlPanel extends JFrame
             layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addContainerGap()
+
                     .addComponent(treeViewPane, GroupLayout.PREFERRED_SIZE, 250, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                     .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
@@ -185,8 +238,17 @@ public class adminControlPanel extends JFrame
                         .addGroup(layout.createSequentialGroup()
                             .addComponent(totalMessageCountButton, GroupLayout.PREFERRED_SIZE, 150, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(totalPositiveCountButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(totalPositiveCountButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(unique_IDVerificationButton, GroupLayout.PREFERRED_SIZE, 150, GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(groupUnique_IDVerificationButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(lastUpdatedUserButton, GroupLayout.DEFAULT_SIZE,GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        
+                        )
+                            
                     .addContainerGap())
+
         );
 
         // Vertical layout configuration
@@ -213,7 +275,16 @@ public class adminControlPanel extends JFrame
                             .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                             .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                 .addComponent(totalMessageCountButton, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addComponent(totalPositiveCountButton, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))))
+                                .addComponent(totalPositiveCountButton, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                .addComponent(unique_IDVerificationButton, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(groupUnique_IDVerificationButton, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(lastUpdatedUserButton, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+
+                                ))
+                                
                     .addContainerGap())
         );
     }
@@ -338,6 +409,7 @@ public class adminControlPanel extends JFrame
             {
                 createUser(newUserName);
                 updateTreeView(newUserName);
+                
             } 
 
             else
@@ -345,12 +417,13 @@ public class adminControlPanel extends JFrame
                 showUserExistsMessage(newUserName);
             }
         } 
-
         else 
         {
             showInvalidUsernameMessage();
         }
     }
+
+    
 
     /**
      * Creates a new user and adds it to the user map.
@@ -362,7 +435,11 @@ public class adminControlPanel extends JFrame
         User newUser = new User(newUserName);
 
         users.put(newUserName, newUser);
-        // System.out.println("User " + newUserName + " was created at " + newUser.getCreationTime());
+
+        System.out.println(newUserName + "(User Creation Time: " + newUser.getUserCreationTime() + ")");
+        lastCreatedUserTime = newUser.getUserCreationTime();
+        lastCreatedUser = newUser.getName();
+        
     }
 
     /**
@@ -437,6 +514,9 @@ public class adminControlPanel extends JFrame
     {
         User_Group newGroup = new User_Group(newGroupName);
         user_groups.put(newGroupName, newGroup);
+
+        System.out.println(newGroupName + "(" + newGroup.getGroupCreationTime() + ")");
+        
     }
 
     /**
@@ -494,4 +574,47 @@ public class adminControlPanel extends JFrame
     {
         return user_groups;
     }
+
+    public boolean verifyUnique_IDs()
+    {
+        Set<String> unique_IDs = new HashSet<>();
+        for(User user : users.values())
+        {
+            String unique_ID = user.getUnique_ID();
+
+            if(unique_ID.contains(" "))
+            {
+                return false;
+            }
+
+            if(!unique_IDs.add(unique_ID))
+            {
+                return false;
+            }
+        
+        }
+        return true;
+    }
+
+    public boolean verifyGroupUnique_IDs()
+    {
+        ArrayList<String> groupUnique_IDs = new ArrayList<>();
+        for(String groupUnique_ID : user_groups.keySet())
+        {
+            if(groupUnique_ID.contains(" ") || groupUnique_ID.contains(groupUnique_ID))
+            {
+                return false;
+            }
+            groupUnique_IDs.add(groupUnique_ID);
+        }
+        return true;
+    }
+
+    public void getLastUpdatedUser(User user)
+    {
+        UserView userView = UserView.getUserView(user);
+        lastUpdatedUser = userView.getLastUpdatedUser();
+
+    }
+
 }

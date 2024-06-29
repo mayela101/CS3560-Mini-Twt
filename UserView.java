@@ -1,6 +1,7 @@
 import java.util.*;
 import javax.swing.*;
 import java.awt.*;
+import java.time.chrono.ThaiBuddhistChronology;
 
 /**
  * Represents the graphical user interface (GUI) view for a user in a social media system.
@@ -8,7 +9,10 @@ import java.awt.*;
 public class UserView extends JFrame 
 {
 
+
     private static UserView UserViewInstance;
+
+
 
     private static final LinkedList<String> tweetStrings = new LinkedList<>();
     private static final LinkedList<String> followingStrings = new LinkedList<>();
@@ -24,6 +28,10 @@ public class UserView extends JFrame
 
     private JTextField followUserField;
     private JTextField postTweetField;
+
+    public long lastUpdatedTime;
+    public String lastUpdatedUser;
+
 
     /**
      * Constructs a new UserView for the specified user.
@@ -57,7 +65,7 @@ public class UserView extends JFrame
     private void initializeUserView(User user) 
     {
         getContentPane().setBackground(Color.pink);
-        setTitle("User: " + user.getName());
+        setTitle(user.getName() + " - Created: " + user.getUserCreationTime());
         setResizable(false);
 
         followUserField = new JTextField();
@@ -83,6 +91,10 @@ public class UserView extends JFrame
             checkForPositiveMessage(postTweetField.getText());
             postTweetField.setText(""); // Clear input field
             updateTweetList();
+            lastUpdatedUser = user.getName();
+            lastUpdatedTime = System.currentTimeMillis();
+            System.out.println(user.getName() + " tweeted at: " + lastUpdatedTime);
+ 
         });
 
         postTweetField = new JTextField();
@@ -190,6 +202,11 @@ public class UserView extends JFrame
         });
     }
 
+    public String getLastUpdatedUser()
+    {
+        return lastUpdatedUser;
+    }
+
     /**
      * Checks a tweet message for positive keywords and updates the admin panel accordingly.
      *
@@ -206,4 +223,6 @@ public class UserView extends JFrame
             }
         }
     }
+
+
 }

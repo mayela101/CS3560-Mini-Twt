@@ -22,6 +22,8 @@ public class User_Group implements systemEntry
     /** The list of sub-groups belonging to this group. */
     private final List<User_Group> userGroupList;
 
+    public long groupCreationTime;
+
     /**
      * Constructs a new {@code User_Group} with a given name and initial set of users.
      *
@@ -34,6 +36,7 @@ public class User_Group implements systemEntry
         userGroupList = new ArrayList<>();
         userList.addAll(Arrays.asList(users));
         unique_ID = name;
+        groupCreationTime = System.currentTimeMillis();
     }
 
     /**
@@ -105,5 +108,11 @@ public class User_Group implements systemEntry
     public String getUnique_ID() 
     {
         return unique_ID;
+    }
+
+
+    public long getGroupCreationTime()
+    {
+        return groupCreationTime;
     }
 }
