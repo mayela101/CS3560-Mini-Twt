@@ -436,7 +436,7 @@ public class adminControlPanel extends JFrame
 
         users.put(newUserName, newUser);
 
-        System.out.println(newUserName + "(User Creation Time: " + newUser.getUserCreationTime() + ")");
+        System.out.println(newUserName + " (User Creation Time: " + newUser.getUserCreationTime() + ")");
         lastCreatedUserTime = newUser.getUserCreationTime();
         lastCreatedUser = newUser.getName();
         
@@ -515,7 +515,7 @@ public class adminControlPanel extends JFrame
         User_Group newGroup = new User_Group(newGroupName);
         user_groups.put(newGroupName, newGroup);
 
-        System.out.println(newGroupName + "(" + newGroup.getGroupCreationTime() + ")");
+        System.out.println(newGroupName + " (Group Creation Time: " + newGroup.getGroupCreationTime() + ")");
         
     }
 
